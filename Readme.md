@@ -5,7 +5,7 @@ a. two player game
 b. computer vs human or computer vs computer
 
 Requirements or Rules :
-a. Game should stop once it finishes i.e. when it reaches terminal condition. 
+a. Game should stop once it finishes i.e. when it reaches terminal condition.
 b. terminal condition : when same sign is diagonally, horizontally or vertically present or when 9 moves are over.
 c. can be checked after fifth move as to reduce computation
 d. Player 1 should start 'o' and player 2 gets 'x'
