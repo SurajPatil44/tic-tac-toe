@@ -99,7 +99,6 @@ class Game :
             print(Style.BRIGHT)
             _choice = input("\nchoose your player 1 or 2 \n")
             _symbol = input("\nchoose your symnbol 'o' or 'x' \n")
-            
             print(Style.RESET_ALL)
             if _choice.isdigit() and (_choice in ['1','2']):
                 if _symbol.lower() in ['o','x']:
