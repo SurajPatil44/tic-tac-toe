@@ -31,7 +31,7 @@ class Game :
         res_ver_3 = None
         res_diag_1 = None
         res_diag_2 = None
-        draw = None
+        #draw = None
         winner = None
         if self.Game_Board['1'] and self.Game_Board['2'] and self.Game_Board['3']:
             res_hor_1 = (self.Game_Board['1'] == self.Game_Board['2']) and (self.Game_Board['2'] == self.Game_Board['3'])
@@ -129,6 +129,16 @@ class Game :
         return val
     
     def print_board(self):
+        """
+        Board will be printed like this
+        
+            o  |o  |x
+            ___|___|___
+            o  |x  |
+            ___|___|___
+            o  |x  |
+               |   |
+        """
         clear_screen()
         print(Fore.RED + Back.WHITE + Style.DIM)
         print(Fore.GREEN+Back.WHITE + Style.DIM+f"{self.check(self.Game_Board['1'])}  "+Style.RESET_ALL+
