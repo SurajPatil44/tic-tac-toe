@@ -1,15 +1,37 @@
 import random
 from colorama import init,Fore,Back,Style
+from mybot import get_move_from_bot
+from datetime import datetime
+import os
+import logging
+import time
 
-##TODO :: ADD AI
 init()
 clear_screen = lambda : print('\033[2J')
 
 BOLD = "\033[1m"
 END = "\033[0m"
 
-class Game : 
-    
+
+# Setup
+os.makedirs("logs", exist_ok=True)
+log_name = f"logs/game_{datetime.now().strftime('%Y-%m-%d')}.log"
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s | %(levelname)-8s | %(name)s | %(message)s',
+    datefmt='%H:%M:%S',
+    handlers=[
+        logging.FileHandler(log_name),
+        #logging.StreamHandler() # This prints to your terminal too
+    ]
+)
+
+
+logger = logging.getLogger("Main")
+logger.info("Game engine initialized.")
+
+class Game:    
     def __init__(self):
         self.Game_Board = {'1': None, '2': None, '3': None,
                       '4': None, '5': None, '6': None,
@@ -108,12 +130,16 @@ class Game :
     def make_move(self,symbol,player):
         
         if self.players[player] == 'AI':
-            place = random.choice(self.empty)    ###not random need to put something smart
+
+            game_state = {"game_state" : self.Game_Board,"empty_slots" : self.empty} 
+            place = get_move_from_bot(game_state)
         else :
             place = self.get_human_input()
         self.empty.remove(place)
         self.filled.append(place)
         self.Game_Board[place] = self.symbols_num2sym[symbol]
+
+        logging.info(f"GAME STATE : {self.Game_Board}, {self.empty}")
         self.moves += 1
         
     def num2word(self):
@@ -126,7 +152,7 @@ class Game :
         if val is None:
             return ' '
         return val
-    
+
     def print_board(self):
         """
         Board will be printed like this
@@ -167,23 +193,22 @@ class Game :
             opt,sym = self.get_player()
             self.players[opt] = player1
             self.players[opt^1] = player2
-            #players_n2w = self.num2word()
-            #print(players_n2w)
             self.state['cur_move'] = opt
             self.state['cur_symbol'] = self.symbols[sym]
             for num in range(10):
                 winner,term = self.terminal_cond()
-                #print(winner,term)
+                logger.info(f"step{num} , winner {winner} , terminal {term}")
                 if (num >= 5) and term:
                     self.state['game_state'] = False
                     break
-                #print(self.state)
-                #print(self.empty)
-                #print(self.moves)
+                logger.info(self.state)
+                logger.info(self.empty)
+                logger.info(self.moves)
                 self.make_move(self.state['cur_symbol'],self.state['cur_move'])
                 self.print_board()
                 self.state['cur_move'] ^= 1
                 self.state['cur_symbol'] ^= 1
+                time.sleep(4) ## rate limit AI
             else:
                 break
         #print(term,winner)
@@ -192,32 +217,33 @@ class Game :
             print(Fore.BLUE + Back.WHITE + Style.BRIGHT)
             print(f"{self.players[self.state['cur_move']^1]} wins the game")
             print(Style.RESET_ALL)
-            #print(f"{self.players},{self.state},{self.filled}")
+            logger.info(f" result : {self.players},{self.state},{self.filled}")
         else:
             print(Fore.MAGENTA + Back.WHITE+ Style.BRIGHT)
             print("\nDRAW!!!!\n")
             print(Style.RESET_ALL)
-            #print(f"{self.players},{self.state},{self.filled}")
+            logging.info(f"draw : {self.players},{self.state},{self.filled}")
     
 
 def get_yorn():
     while True:
         print(Fore.RED + Back.WHITE)
-        yorn = input("\n\npress 'y' if you play again and 'n' to quit   ")
+        yorn = input("\n\npress 'y' if you play again. \n to quit press 'n'")
         print(Style.RESET_ALL)
         if yorn.lower() in ['y','n']:
             break
     return yorn
                 
+if __name__ == "__main__":
 
-while True:
-    clear_screen()
-    g = Game()
-    g.Play('Human','AI')
-    yorn = get_yorn()
-    if 'n' in yorn.lower():
-        break
-    
-print(Fore.RED + Back.WHITE + Style.BRIGHT)       
-print("\nSEE YEAH AGAIN!!!!!"+"\033[0m")
-print(Style.RESET_ALL)      
+    while True:
+        clear_screen()
+        g = Game()
+        g.Play('Human','AI')
+        yorn = get_yorn()
+        if 'n' in yorn.lower():
+            break
+        
+    print(Fore.RED + Back.WHITE + Style.BRIGHT)       
+    print("\nSEE YEAH AGAIN!!!!!"+"\033[0m")
+    print(Style.RESET_ALL)      
